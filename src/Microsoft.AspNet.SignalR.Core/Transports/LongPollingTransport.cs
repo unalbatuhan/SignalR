@@ -16,6 +16,7 @@ namespace Microsoft.AspNet.SignalR.Transports
     {
         private readonly IConfigurationManager _configurationManager;
         private bool _responseSent;
+        private string _lastMessageId;
 
         public LongPollingTransport(HostContext context, IDependencyResolver resolver)
             : this(context,
@@ -83,6 +84,20 @@ namespace Microsoft.AspNet.SignalR.Transports
             get
             {
                 return 5000;
+            }
+        }
+
+        protected override string LastMessageId
+        {
+            get
+            {
+                if (_lastMessageId == null)
+                {
+                    INameValueCollection form = Context.Request.ReadForm().Result;
+                    _lastMessageId = form["messageId"];
+                }
+
+                return _lastMessageId;
             }
         }
 

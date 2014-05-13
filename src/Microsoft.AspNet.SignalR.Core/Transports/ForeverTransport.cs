@@ -52,7 +52,7 @@ namespace Microsoft.AspNet.SignalR.Transports
             }
         }
 
-        protected string LastMessageId
+        protected virtual string LastMessageId
         {
             get
             {

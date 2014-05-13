@@ -84,13 +84,39 @@
 
             privateData.reconnectTimeoutId = null;
 
+            var getUrl = function (connection, transport, reconnecting, poll) {
+                /// <summary>Gets the url for making a GET based connect request</summary>
+                var baseUrl = connection.baseUrl,
+                    url = baseUrl + connection.appRelativeUrl,
+                    qs = "transport=" + transport;
+
+                if (connection.groupsToken) {
+                    qs += "&groupsToken=" + window.encodeURIComponent(connection.groupsToken);
+                }
+
+                if (!reconnecting) {
+                    url += "/connect";
+                } else {
+                    if (poll) {
+                        // longPolling transport specific
+                        url += "/poll";
+                    } else {
+                        url += "/reconnect";
+                    }
+                }
+                url += "?" + qs;
+                url = transportLogic.prepareQueryString(connection, url);
+                return url;
+            };
+            
             privateData.pollTimeoutId = window.setTimeout(function () {
                 (function poll(instance, raiseReconnect) {
                     var messageId = instance.messageId,
                         connect = (messageId === null),
                         reconnecting = !connect,
                         polling = !raiseReconnect,
-                        url = transportLogic.getUrl(instance, that.name, reconnecting, polling);
+                        url = getUrl(instance, that.name, reconnecting, polling),
+                        messageIdData = instance.messageId ? instance.messageId : null;
 
                     // If we've disconnected during the time we've tried to re-instantiate the poll then stop.
                     if (isDisconnecting(instance) === true) {
@@ -105,6 +131,11 @@
                             }
                         },
                         url: url,
+                        type: "POST",
+                        contentType: signalR._.defaultContentType,
+                        data: {
+                            messageId: messageIdData
+                        },
                         success: function (result) {
                             var minData,
                                 delay = 0,
