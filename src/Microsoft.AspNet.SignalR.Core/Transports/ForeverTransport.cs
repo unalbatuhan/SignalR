@@ -19,7 +19,6 @@ namespace Microsoft.AspNet.SignalR.Transports
 
         private readonly IPerformanceCounterManager _counters;
         private readonly JsonSerializer _jsonSerializer;
-        private string _lastMessageId;
         private IDisposable _busRegistration;
 
         internal RequestLifetime _transportLifetime;
@@ -52,19 +51,6 @@ namespace Microsoft.AspNet.SignalR.Transports
             }
         }
 
-        protected virtual string LastMessageId
-        {
-            get
-            {
-                if (_lastMessageId == null)
-                {
-                    _lastMessageId = Context.Request.QueryString["messageId"];
-                }
-
-                return _lastMessageId;
-            }
-        }
-
         protected JsonSerializer JsonSerializer
         {
             get { return _jsonSerializer; }
@@ -92,9 +78,9 @@ namespace Microsoft.AspNet.SignalR.Transports
         internal Action BeforeReceive;
         internal Action<Exception> AfterRequestEnd;
 
-        protected override void InitializePersistentState()
+        protected override async Task InitializePersistentState()
         {
-            base.InitializePersistentState();
+            await base.InitializePersistentState();
 
             // The _transportLifetime must be initialized after calling base.InitializePersistentState since
             // _transportLifetime depends on _requestLifetime.
@@ -115,9 +101,8 @@ namespace Microsoft.AspNet.SignalR.Transports
             }
             else
             {
-                InitializePersistentState();
+                return InitializePersistentState().Then(() => ProcessReceiveRequest(connection));
 
-                return ProcessReceiveRequest(connection);
             }
         }
 

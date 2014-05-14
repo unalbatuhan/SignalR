@@ -212,8 +212,11 @@
                 url = baseUrl + connection.appRelativeUrl,
                 qs = "transport=" + transport;
 
-            if (connection.groupsToken) {
-                qs += "&groupsToken=" + window.encodeURIComponent(connection.groupsToken);
+            if (transport !== "longPolling")
+            {
+                if (connection.groupsToken) {
+                    qs += "&groupsToken=" + window.encodeURIComponent(connection.groupsToken);
+                }
             }
 
             if (!reconnecting) {
@@ -226,13 +229,20 @@
                     url += "/reconnect";
                 }
 
-                if (connection.messageId) {
-                    qs += "&messageId=" + window.encodeURIComponent(connection.messageId);
+                if (transport !== "longPolling")
+                {
+                    if (connection.messageId) {
+                        qs += "&messageId=" + window.encodeURIComponent(connection.messageId);
+                    }
                 }
             }
             url += "?" + qs;
             url = transportLogic.prepareQueryString(connection, url);
-            url += "&tid=" + Math.floor(Math.random() * 11);
+
+            if (transport !== "longPolling") {
+                url += "&tid=" + Math.floor(Math.random() * 11);
+            }
+
             return url;
         },
 

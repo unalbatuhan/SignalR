@@ -12,13 +12,13 @@
         isDisconnecting = $.signalR.isDisconnecting,
         transportLogic = signalR.transports._logic,
         browserSupportsXHRProgress = (function () {
-                try {
-                    return "onprogress" in new window.XMLHttpRequest();
-                } catch (e) {
-                    // No XHR means no XHR progress event
-                    return false;
-                }
-            })();
+            try {
+                return "onprogress" in new window.XMLHttpRequest();
+            } catch (e) {
+                // No XHR means no XHR progress event
+                return false;
+            }
+        })();
 
     signalR.transports.longPolling = {
         name: "longPolling",
@@ -84,39 +84,14 @@
 
             privateData.reconnectTimeoutId = null;
 
-            var getUrl = function (connection, transport, reconnecting, poll) {
-                /// <summary>Gets the url for making a GET based connect request</summary>
-                var baseUrl = connection.baseUrl,
-                    url = baseUrl + connection.appRelativeUrl,
-                    qs = "transport=" + transport;
-
-                if (connection.groupsToken) {
-                    qs += "&groupsToken=" + window.encodeURIComponent(connection.groupsToken);
-                }
-
-                if (!reconnecting) {
-                    url += "/connect";
-                } else {
-                    if (poll) {
-                        // longPolling transport specific
-                        url += "/poll";
-                    } else {
-                        url += "/reconnect";
-                    }
-                }
-                url += "?" + qs;
-                url = transportLogic.prepareQueryString(connection, url);
-                return url;
-            };
-            
             privateData.pollTimeoutId = window.setTimeout(function () {
                 (function poll(instance, raiseReconnect) {
                     var messageId = instance.messageId,
                         connect = (messageId === null),
                         reconnecting = !connect,
                         polling = !raiseReconnect,
-                        url = getUrl(instance, that.name, reconnecting, polling),
-                        messageIdData = instance.messageId ? instance.messageId : null;
+                        url = transportLogic.getUrl(instance, that.name, reconnecting, polling),
+                        groupsTokenData = instance.groupsToken ? instance.groupsToken : null;
 
                     // If we've disconnected during the time we've tried to re-instantiate the poll then stop.
                     if (isDisconnecting(instance) === true) {
@@ -134,7 +109,9 @@
                         type: "POST",
                         contentType: signalR._.defaultContentType,
                         data: {
-                            messageId: messageIdData
+                            messageId: instance.messageId,
+                            groupsToken: groupsTokenData
+
                         },
                         success: function (result) {
                             var minData,

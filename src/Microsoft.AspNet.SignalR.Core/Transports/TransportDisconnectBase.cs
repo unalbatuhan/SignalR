@@ -26,6 +26,9 @@ namespace Microsoft.AspNet.SignalR.Transports
         private int _ended;
         private TransportConnectionStates _state;
 
+        internal string _lastMessageId;
+        internal string _groupsToken;
+
         internal static readonly Func<Task> _emptyTaskFunc = () => TaskAsyncHelper.Empty;
 
         // The TCS that completes when the task returned by PersistentConnection.OnConnected does.
@@ -90,6 +93,35 @@ namespace Microsoft.AspNet.SignalR.Transports
             set;
         }
 
+        protected string LastMessageId
+        {
+            get
+            {
+                return _lastMessageId;
+            }
+        }
+
+        protected virtual async Task GetMessageId()
+        {
+            await Task.Run(() =>
+            {
+                if (_lastMessageId == null)
+                {
+                    _lastMessageId = Context.Request.QueryString["messageId"];
+                }
+            });
+        }
+
+        public virtual async Task<string> GetGroupsToken(HostContext context)
+        {
+            await Task.Run(() =>
+            {
+                _groupsToken = context.Request.QueryString["groupsToken"];
+            });
+
+            return _groupsToken;
+        }
+
         public virtual TextWriter OutputWriter
         {
             get
@@ -126,7 +158,7 @@ namespace Microsoft.AspNet.SignalR.Transports
             {
                 // If the CTS is tripped or the request has ended then the connection isn't alive
                 return !(
-                    CancellationToken.IsCancellationRequested || 
+                    CancellationToken.IsCancellationRequested ||
                     (_requestLifeTime != null && _requestLifeTime.Task.IsCompleted) ||
                     _lastWriteTask.IsCanceled ||
                     _lastWriteTask.IsFaulted
@@ -357,7 +389,7 @@ namespace Microsoft.AspNet.SignalR.Transports
             return writeTask;
         }
 
-        protected virtual void InitializePersistentState()
+        protected virtual async Task InitializePersistentState()
         {
             _hostShutdownToken = _context.Environment.GetShutdownToken();
 
@@ -383,6 +415,8 @@ namespace Microsoft.AspNet.SignalR.Transports
                 ((HttpRequestLifeTime)state).Complete();
             },
             _requestLifeTime);
+
+            await GetMessageId();
         }
 
         private static void OnDisconnectError(AggregateException ex, object state)

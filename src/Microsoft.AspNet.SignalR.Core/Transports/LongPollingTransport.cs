@@ -16,7 +16,6 @@ namespace Microsoft.AspNet.SignalR.Transports
     {
         private readonly IConfigurationManager _configurationManager;
         private bool _responseSent;
-        private string _lastMessageId;
 
         public LongPollingTransport(HostContext context, IDependencyResolver resolver)
             : this(context,
@@ -87,18 +86,31 @@ namespace Microsoft.AspNet.SignalR.Transports
             }
         }
 
-        protected override string LastMessageId
+        protected override async Task GetMessageId()
         {
-            get
+            if (_lastMessageId == null)
             {
-                if (_lastMessageId == null)
-                {
-                    INameValueCollection form = Context.Request.ReadForm().Result;
-                    _lastMessageId = form["messageId"];
-                }
-
-                return _lastMessageId;
+                _lastMessageId = Context.Request.QueryString["messageId"];
             }
+
+            if (_lastMessageId == null)
+            {
+                INameValueCollection form = await Context.Request.ReadForm();
+                _lastMessageId = form["messageId"];
+            }
+        }
+
+        public override async Task<string> GetGroupsToken(HostContext context)
+        {
+            _groupsToken = context.Request.QueryString["groupsToken"];
+
+            if (_groupsToken == null)
+            {
+                INameValueCollection form = await Context.Request.ReadForm();
+                _groupsToken = form["groupsToken"];
+            }
+
+            return _groupsToken;
         }
 
         protected override bool IsPollRequest
@@ -265,7 +277,7 @@ namespace Microsoft.AspNet.SignalR.Transports
 
             return PerformPartialSend(state);
         }
-        
+
         private void AddTransportData(PersistentResponse response)
         {
             if (_configurationManager.LongPollDelay != TimeSpan.Zero)

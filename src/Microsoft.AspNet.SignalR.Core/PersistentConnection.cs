@@ -35,6 +35,7 @@ namespace Microsoft.AspNet.SignalR
         private IConfigurationManager _configurationManager;
         private ITransportManager _transportManager;
         private bool _initialized;
+        private string _groupsToken;
 
         public virtual void Initialize(IDependencyResolver resolver)
         {
@@ -133,6 +134,16 @@ namespace Microsoft.AspNet.SignalR
             }
         }
 
+        private async Task Initialize(HostContext context)
+        {
+            Transport = GetTransport(context);
+
+            if (Transport != null)
+            {
+                _groupsToken = await Transport.GetGroupsToken(context);
+            }
+        }
+
         /// <summary>
         /// OWIN entry point.
         /// </summary>
@@ -153,7 +164,7 @@ namespace Microsoft.AspNet.SignalR
 
             if (Authorize(context.Request))
             {
-                return ProcessRequest(context);
+                return Initialize(context).Then(() => ProcessRequest(context));
             }
 
             if (context.Request.User != null &&
@@ -202,8 +213,6 @@ namespace Microsoft.AspNet.SignalR
                 return ProcessPingRequest(context);
             }
 
-            Transport = GetTransport(context);
-
             if (Transport == null)
             {
                 return FailResponse(context.Response, String.Format(CultureInfo.CurrentCulture, Resources.Error_ProtocolErrorUnknownTransport));
@@ -220,7 +229,7 @@ namespace Microsoft.AspNet.SignalR
             string connectionId;
             string message;
             int statusCode;
-            
+
             if (!TryGetConnectionId(context, connectionToken, out connectionId, out message, out statusCode))
             {
                 return FailResponse(context.Response, message, statusCode);
@@ -330,7 +339,7 @@ namespace Microsoft.AspNet.SignalR
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to prevent any failures in unprotecting")]
         internal IList<string> VerifyGroups(HostContext context, string connectionId)
         {
-            string groupsToken = context.Request.QueryString["groupsToken"];
+            string groupsToken = _groupsToken;
 
             if (String.IsNullOrEmpty(groupsToken))
             {

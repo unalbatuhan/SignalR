@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Infrastructure;
+using Microsoft.AspNet.SignalR.Hosting;
 
 namespace Microsoft.AspNet.SignalR.Transports
 {
@@ -36,6 +37,13 @@ namespace Microsoft.AspNet.SignalR.Transports
         /// Gets or sets the connection id for the transport.
         /// </summary>
         string ConnectionId { get; set; }
+
+        /// <summary>
+        /// Get groupsToken in request over the transport.
+        /// </summary>
+        /// <param name="context">HostContext</param>
+        /// <returns>groupsToken in request</returns>
+        Task<string> GetGroupsToken(HostContext context);
 
         /// <summary>
         /// Processes the specified <see cref="ITransportConnection"/> for this transport.
