@@ -137,7 +137,7 @@ namespace Microsoft.AspNet.SignalR.Tests
                 var context = new HostContext(req.Object, null);
                 connection.Object.Initialize(dr);
 
-                return connection.Object.VerifyGroups(context, connectionId);
+                return connection.Object.VerifyGroups(connectionId);
             }
         }
 

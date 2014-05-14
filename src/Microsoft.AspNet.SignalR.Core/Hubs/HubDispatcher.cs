@@ -191,7 +191,7 @@ namespace Microsoft.AspNet.SignalR.Hubs
         {
             // TODO: Make adding parameters here pluggable? IValueProvider? ;)
             HubInvocationProgress progress = GetProgressInstance(methodDescriptor, value => SendProgressUpdate(hub.Context.ConnectionId, tracker, value, hubRequest));
-            
+
             Task<object> piplineInvocation;
             try
             {
@@ -201,7 +201,7 @@ namespace Microsoft.AspNet.SignalR.Hubs
                 // itself looks for overload matches based on the incoming arg values
                 if (progress != null)
                 {
-                    args = args.Concat(new [] { progress }).ToList();
+                    args = args.Concat(new[] { progress }).ToList();
                 }
 
                 var context = new HubInvokerContext(hub, tracker, methodDescriptor, args);
@@ -249,7 +249,7 @@ namespace Microsoft.AspNet.SignalR.Hubs
             return progress;
         }
 
-        public override Task ProcessRequest(HostContext context)
+        public override async Task ProcessRequest(HostContext context)
         {
             if (context == null)
             {
@@ -276,12 +276,13 @@ namespace Microsoft.AspNet.SignalR.Hubs
 
                 // Generate the proxy
                 context.Response.ContentType = JsonUtility.JavaScriptMimeType;
-                return context.Response.End(_proxyGenerator.GenerateProxy(hubUrl));
+                await context.Response.End(_proxyGenerator.GenerateProxy(hubUrl));
+                return;
             }
 
             _isDebuggingEnabled = context.Environment.IsDebugEnabled();
 
-            return base.ProcessRequest(context);
+            await base.ProcessRequest(context);
         }
 
         internal static Task Connect(IHub hub)

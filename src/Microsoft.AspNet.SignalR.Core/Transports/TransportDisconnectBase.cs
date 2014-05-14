@@ -101,6 +101,7 @@ namespace Microsoft.AspNet.SignalR.Transports
             }
         }
 
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This is for async.")]
         protected virtual async Task GetMessageId()
         {
             await Task.Run(() =>

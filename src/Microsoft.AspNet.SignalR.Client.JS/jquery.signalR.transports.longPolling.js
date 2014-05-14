@@ -111,7 +111,6 @@
                         data: {
                             messageId: instance.messageId,
                             groupsToken: groupsTokenData
-
                         },
                         success: function (result) {
                             var minData,

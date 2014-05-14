@@ -134,16 +134,6 @@ namespace Microsoft.AspNet.SignalR
             }
         }
 
-        private async Task Initialize(HostContext context)
-        {
-            Transport = GetTransport(context);
-
-            if (Transport != null)
-            {
-                _groupsToken = await Transport.GetGroupsToken(context);
-            }
-        }
-
         /// <summary>
         /// OWIN entry point.
         /// </summary>
@@ -164,7 +154,7 @@ namespace Microsoft.AspNet.SignalR
 
             if (Authorize(context.Request))
             {
-                return Initialize(context).Then(() => ProcessRequest(context));
+                return ProcessRequest(context);
             }
 
             if (context.Request.User != null &&
@@ -192,7 +182,7 @@ namespace Microsoft.AspNet.SignalR
         /// Thrown if the transport wasn't specified.
         /// Thrown if the connection id wasn't specified.
         /// </exception>
-        public virtual Task ProcessRequest(HostContext context)
+        public virtual async Task ProcessRequest(HostContext context)
         {
             if (context == null)
             {
@@ -206,16 +196,25 @@ namespace Microsoft.AspNet.SignalR
 
             if (IsNegotiationRequest(context.Request))
             {
-                return ProcessNegotiationRequest(context);
+                await ProcessNegotiationRequest(context);
+                return;
             }
             else if (IsPingRequest(context.Request))
             {
-                return ProcessPingRequest(context);
+                await ProcessPingRequest(context);
+                return;
             }
+
+            Transport = GetTransport(context);
 
             if (Transport == null)
             {
-                return FailResponse(context.Response, String.Format(CultureInfo.CurrentCulture, Resources.Error_ProtocolErrorUnknownTransport));
+                await FailResponse(context.Response, String.Format(CultureInfo.CurrentCulture, Resources.Error_ProtocolErrorUnknownTransport));
+                return;
+            }
+            else
+            {
+                _groupsToken = await Transport.GetGroupsToken(context);
             }
 
             string connectionToken = context.Request.QueryString["connectionToken"];
@@ -223,7 +222,8 @@ namespace Microsoft.AspNet.SignalR
             // If there's no connection id then this is a bad request
             if (String.IsNullOrEmpty(connectionToken))
             {
-                return FailResponse(context.Response, String.Format(CultureInfo.CurrentCulture, Resources.Error_ProtocolErrorMissingConnectionToken));
+                await FailResponse(context.Response, String.Format(CultureInfo.CurrentCulture, Resources.Error_ProtocolErrorMissingConnectionToken));
+                return;
             }
 
             string connectionId;
@@ -232,7 +232,8 @@ namespace Microsoft.AspNet.SignalR
 
             if (!TryGetConnectionId(context, connectionToken, out connectionId, out message, out statusCode))
             {
-                return FailResponse(context.Response, message, statusCode);
+                await FailResponse(context.Response, message, statusCode);
+                return;
             }
 
             // Set the transport's connection id to the unprotected one
@@ -254,7 +255,8 @@ namespace Microsoft.AspNet.SignalR
             // because ProcessStartRequest calls OnConnected.
             if (IsStartRequest(context.Request))
             {
-                return ProcessStartRequest(context, connectionId);
+                await ProcessStartRequest(context, connectionId);
+                return;
             }
 
             Transport.Connected = () =>
@@ -286,7 +288,7 @@ namespace Microsoft.AspNet.SignalR
                 }
             };
 
-            return Transport.ProcessRequest(connection).OrEmpty().Catch(Counters.ErrorsAllTotal, Counters.ErrorsAllPerSec);
+            await Transport.ProcessRequest(connection).OrEmpty().Catch(Counters.ErrorsAllTotal, Counters.ErrorsAllPerSec);
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to catch any exception when unprotecting data.")]
@@ -337,7 +339,7 @@ namespace Microsoft.AspNet.SignalR
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to prevent any failures in unprotecting")]
-        internal IList<string> VerifyGroups(HostContext context, string connectionId)
+        internal IList<string> VerifyGroups(string connectionId)
         {
             string groupsToken = _groupsToken;
 
@@ -377,7 +379,7 @@ namespace Microsoft.AspNet.SignalR
 
         private IList<string> AppendGroupPrefixes(HostContext context, string connectionId)
         {
-            return (from g in OnRejoiningGroups(context.Request, VerifyGroups(context, connectionId), connectionId)
+            return (from g in OnRejoiningGroups(context.Request, VerifyGroups(connectionId), connectionId)
                     select GroupPrefix + g).ToList();
         }
 
