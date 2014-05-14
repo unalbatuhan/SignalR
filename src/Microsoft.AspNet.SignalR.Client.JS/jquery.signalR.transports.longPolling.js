@@ -12,13 +12,13 @@
         isDisconnecting = $.signalR.isDisconnecting,
         transportLogic = signalR.transports._logic,
         browserSupportsXHRProgress = (function () {
-            try {
-                return "onprogress" in new window.XMLHttpRequest();
-            } catch (e) {
-                // No XHR means no XHR progress event
-                return false;
-            }
-        })();
+                try {
+                    return "onprogress" in new window.XMLHttpRequest();
+                } catch (e) {
+                    // No XHR means no XHR progress event
+                    return false;
+                }
+            })();
 
     signalR.transports.longPolling = {
         name: "longPolling",
