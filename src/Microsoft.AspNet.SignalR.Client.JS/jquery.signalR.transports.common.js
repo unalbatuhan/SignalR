@@ -212,8 +212,7 @@
                 url = baseUrl + connection.appRelativeUrl,
                 qs = "transport=" + transport;
 
-            if (transport !== "longPolling")
-            {
+            if (transport !== "longPolling") {
                 if (connection.groupsToken) {
                     qs += "&groupsToken=" + window.encodeURIComponent(connection.groupsToken);
                 }
@@ -229,8 +228,7 @@
                     url += "/reconnect";
                 }
 
-                if (transport !== "longPolling")
-                {
+                if (transport !== "longPolling") {
                     if (connection.messageId) {
                         qs += "&messageId=" + window.encodeURIComponent(connection.messageId);
                     }
