@@ -41,9 +41,8 @@ namespace Microsoft.AspNet.SignalR.Transports
         /// <summary>
         /// Get groupsToken in request over the transport.
         /// </summary>
-        /// <param name="context">HostContext</param>
         /// <returns>groupsToken in request</returns>
-        Task<string> GetGroupsToken(HostContext context);
+        Task<string> GetGroupsToken();
 
         /// <summary>
         /// Processes the specified <see cref="ITransportConnection"/> for this transport.

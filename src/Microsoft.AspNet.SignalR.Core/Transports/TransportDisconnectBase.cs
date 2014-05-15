@@ -27,7 +27,6 @@ namespace Microsoft.AspNet.SignalR.Transports
         private TransportConnectionStates _state;
 
         internal string _lastMessageId;
-        internal string _groupsToken;
 
         internal static readonly Func<Task> _emptyTaskFunc = () => TaskAsyncHelper.Empty;
 
@@ -102,25 +101,19 @@ namespace Microsoft.AspNet.SignalR.Transports
         }
 
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This is for async.")]
-        protected virtual async Task GetMessageId()
+        protected virtual Task InitializeMessageId()
         {
-            await Task.Run(() =>
+            if (_lastMessageId == null)
             {
-                if (_lastMessageId == null)
-                {
-                    _lastMessageId = Context.Request.QueryString["messageId"];
-                }
-            });
+                _lastMessageId = Context.Request.QueryString["messageId"];
+            }
+
+            return TaskAsyncHelper.Empty;
         }
 
-        public virtual async Task<string> GetGroupsToken(HostContext context)
+        public virtual Task<string> GetGroupsToken()
         {
-            await Task.Run(() =>
-            {
-                _groupsToken = context.Request.QueryString["groupsToken"];
-            });
-
-            return _groupsToken;
+            return TaskAsyncHelper.FromResult(Context.Request.QueryString["groupsToken"]);
         }
 
         public virtual TextWriter OutputWriter
@@ -417,7 +410,7 @@ namespace Microsoft.AspNet.SignalR.Transports
             },
             _requestLifeTime);
 
-            await GetMessageId();
+            await InitializeMessageId();
         }
 
         private static void OnDisconnectError(AggregateException ex, object state)

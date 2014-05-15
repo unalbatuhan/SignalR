@@ -99,11 +99,8 @@ namespace Microsoft.AspNet.SignalR.Transports
             {
                 return Connection.Abort(ConnectionId);
             }
-            else
-            {
-                return InitializePersistentState().Then(() => ProcessReceiveRequest(connection));
 
-            }
+            return InitializePersistentState().Then(() => ProcessReceiveRequest(connection));
         }
 
         public virtual Task ProcessRequest(ITransportConnection connection)

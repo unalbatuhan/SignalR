@@ -90,7 +90,7 @@
                         connect = (messageId === null),
                         reconnecting = !connect,
                         polling = !raiseReconnect,
-                        url = transportLogic.getUrl(instance, that.name, reconnecting, polling),
+                        url = transportLogic.getUrl(instance, that.name, reconnecting, polling, true),
                         groupsTokenData = instance.groupsToken ? instance.groupsToken : null;
 
                     // If we've disconnected during the time we've tried to re-instantiate the poll then stop.

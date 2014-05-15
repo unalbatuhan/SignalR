@@ -206,13 +206,13 @@
             throw new Error("Query string property must be either a string or object.");
         },
 
-        getUrl: function (connection, transport, reconnecting, poll) {
+        getUrl: function (connection, transport, reconnecting, poll, ajaxPost) {
             /// <summary>Gets the url for making a GET based connect request</summary>
             var baseUrl = transport === "webSockets" ? "" : connection.baseUrl,
                 url = baseUrl + connection.appRelativeUrl,
                 qs = "transport=" + transport;
 
-            if (transport !== "longPolling") {
+            if (!ajaxPost) {
                 if (connection.groupsToken) {
                     qs += "&groupsToken=" + window.encodeURIComponent(connection.groupsToken);
                 }
@@ -228,7 +228,7 @@
                     url += "/reconnect";
                 }
 
-                if (transport !== "longPolling") {
+                if (!ajaxPost) {
                     if (connection.messageId) {
                         qs += "&messageId=" + window.encodeURIComponent(connection.messageId);
                     }
@@ -237,7 +237,7 @@
             url += "?" + qs;
             url = transportLogic.prepareQueryString(connection, url);
 
-            if (transport !== "longPolling") {
+            if (!ajaxPost) {
                 url += "&tid=" + Math.floor(Math.random() * 11);
             }
 

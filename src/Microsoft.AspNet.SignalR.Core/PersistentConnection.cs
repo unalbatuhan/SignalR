@@ -212,10 +212,8 @@ namespace Microsoft.AspNet.SignalR
                 await FailResponse(context.Response, String.Format(CultureInfo.CurrentCulture, Resources.Error_ProtocolErrorUnknownTransport));
                 return;
             }
-            else
-            {
-                _groupsToken = await Transport.GetGroupsToken(context);
-            }
+
+            _groupsToken = await Transport.GetGroupsToken();
 
             string connectionToken = context.Request.QueryString["connectionToken"];
 
@@ -341,9 +339,7 @@ namespace Microsoft.AspNet.SignalR
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to prevent any failures in unprotecting")]
         internal IList<string> VerifyGroups(string connectionId)
         {
-            string groupsToken = _groupsToken;
-
-            if (String.IsNullOrEmpty(groupsToken))
+            if (String.IsNullOrEmpty(_groupsToken))
             {
                 return ListHelper<string>.Empty;
             }
@@ -352,11 +348,11 @@ namespace Microsoft.AspNet.SignalR
 
             try
             {
-                unprotectedGroupsToken = ProtectedData.Unprotect(groupsToken, Purposes.Groups);
+                unprotectedGroupsToken = ProtectedData.Unprotect(_groupsToken, Purposes.Groups);
             }
             catch (Exception ex)
             {
-                Trace.TraceInformation("Failed to process groupsToken {0}: {1}", groupsToken, ex);
+                Trace.TraceInformation("Failed to process groupsToken {0}: {1}", _groupsToken, ex);
             }
 
             if (String.IsNullOrEmpty(unprotectedGroupsToken))
