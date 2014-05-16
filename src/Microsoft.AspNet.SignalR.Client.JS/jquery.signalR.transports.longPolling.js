@@ -91,7 +91,8 @@
                         reconnecting = !connect,
                         polling = !raiseReconnect,
                         url = transportLogic.getUrl(instance, that.name, reconnecting, polling, true),
-                        groupsTokenData = instance.groupsToken ? instance.groupsToken : null;
+                        messageIdData = instance.messageId ? instance.messageId : "",
+                        groupsTokenData = instance.groupsToken ? instance.groupsToken : "";
 
                     // If we've disconnected during the time we've tried to re-instantiate the poll then stop.
                     if (isDisconnecting(instance) === true) {
@@ -109,7 +110,7 @@
                         type: "POST",
                         contentType: signalR._.defaultContentType,
                         data: {
-                            messageId: instance.messageId,
+                            messageId: messageIdData,
                             groupsToken: groupsTokenData
                         },
                         success: function (result) {
