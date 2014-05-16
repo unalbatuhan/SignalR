@@ -91,8 +91,31 @@
                         reconnecting = !connect,
                         polling = !raiseReconnect,
                         url = transportLogic.getUrl(instance, that.name, reconnecting, polling, true),
-                        messageIdData = instance.messageId ? instance.messageId : "",
-                        groupsTokenData = instance.groupsToken ? instance.groupsToken : "";
+                        postData;
+                        
+                        if (instance.messageId) {
+                            if (instance.groupsToken) {
+                                postData = {
+                                    messageId: instance.messageId,
+                                    groupsToken: instance.groupsToken
+                                };
+                            }
+                            else {
+                                postData = {
+                                    messageId: instance.messageId
+                                };
+                            }
+                        }
+                        else {
+                            if (instance.groupsToken) {
+                                postData = {
+                                    groupsToken: instance.groupsToken
+                                };
+                            }
+                            else {
+                                postData = {};
+                            }
+                        }
 
                     // If we've disconnected during the time we've tried to re-instantiate the poll then stop.
                     if (isDisconnecting(instance) === true) {
@@ -109,10 +132,7 @@
                         url: url,
                         type: "POST",
                         contentType: signalR._.defaultContentType,
-                        data: {
-                            messageId: messageIdData,
-                            groupsToken: groupsTokenData
-                        },
+                        data: postData,
                         success: function (result) {
                             var minData,
                                 delay = 0,
