@@ -139,7 +139,7 @@ testUtilities.runWithAllTransports(function (transport) {
         connection.start({ transport: transport }).done(function () {
             assert.ok(true, "Connected");
 
-            groupChat.server.creatGroupsToken(groupName).done(function (value) {
+            groupChat.server.createGroupsToken(groupName).done(function (value) {
                 connection.groupsToken = value;
                 assert.ok(true, "Successful creat groupsToken");
             });

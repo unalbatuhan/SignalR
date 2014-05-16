@@ -37,9 +37,7 @@ namespace Microsoft.AspNet.SignalR.Tests.Common.Hubs
             string path = config.FilePath.ToLower().Replace("web.config", "");
             string file = Path.Combine(path, @"bin\test.dll");
 
-            bool fileExist = File.Exists(file);
-
-            if (fileExist)
+            if (File.Exists(file))
             {
                 File.Delete(file);
             }
@@ -49,7 +47,7 @@ namespace Microsoft.AspNet.SignalR.Tests.Common.Hubs
             }
         }
 
-        public string CreatGroupsToken(string groupName)
+        public string CreateGroupsToken(string groupName)
         {
             IProtectedData protectedData = GlobalHost.DependencyResolver.Resolve<IProtectedData>();
 
