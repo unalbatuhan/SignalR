@@ -35,7 +35,6 @@ namespace Microsoft.AspNet.SignalR
         private IConfigurationManager _configurationManager;
         private ITransportManager _transportManager;
         private bool _initialized;
-        private string _groupsToken;
 
         public virtual void Initialize(IDependencyResolver resolver)
         {
@@ -213,9 +212,9 @@ namespace Microsoft.AspNet.SignalR
                 return;
             }
 
-            _groupsToken = await Transport.GetGroupsToken();
-
             string connectionToken = context.Request.QueryString["connectionToken"];
+
+            string groupsToken = await Transport.GetGroupsToken();
 
             // If there's no connection id then this is a bad request
             if (String.IsNullOrEmpty(connectionToken))
@@ -241,7 +240,7 @@ namespace Microsoft.AspNet.SignalR
             string userId = UserIdProvider.GetUserId(context.Request);
 
             IList<string> signals = GetSignals(userId, connectionId);
-            IList<string> groups = AppendGroupPrefixes(context, connectionId);
+            IList<string> groups = AppendGroupPrefixes(context, connectionId, groupsToken);
 
             Connection connection = CreateConnection(connectionId, signals, groups);
 
@@ -337,9 +336,9 @@ namespace Microsoft.AspNet.SignalR
         }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to prevent any failures in unprotecting")]
-        internal IList<string> VerifyGroups(string connectionId)
+        internal IList<string> VerifyGroups(string connectionId, string groupsToken)
         {
-            if (String.IsNullOrEmpty(_groupsToken))
+            if (String.IsNullOrEmpty(groupsToken))
             {
                 return ListHelper<string>.Empty;
             }
@@ -348,11 +347,11 @@ namespace Microsoft.AspNet.SignalR
 
             try
             {
-                unprotectedGroupsToken = ProtectedData.Unprotect(_groupsToken, Purposes.Groups);
+                unprotectedGroupsToken = ProtectedData.Unprotect(groupsToken, Purposes.Groups);
             }
             catch (Exception ex)
             {
-                Trace.TraceInformation("Failed to process groupsToken {0}: {1}", _groupsToken, ex);
+                Trace.TraceInformation("Failed to process groupsToken {0}: {1}", groupsToken, ex);
             }
 
             if (String.IsNullOrEmpty(unprotectedGroupsToken))
@@ -373,9 +372,9 @@ namespace Microsoft.AspNet.SignalR
             return JsonSerializer.Parse<string[]>(groupsValue);
         }
 
-        private IList<string> AppendGroupPrefixes(HostContext context, string connectionId)
+        private IList<string> AppendGroupPrefixes(HostContext context, string connectionId, string groupsToken)
         {
-            return (from g in OnRejoiningGroups(context.Request, VerifyGroups(connectionId), connectionId)
+            return (from g in OnRejoiningGroups(context.Request, VerifyGroups(connectionId, groupsToken), connectionId)
                     select GroupPrefix + g).ToList();
         }
 
