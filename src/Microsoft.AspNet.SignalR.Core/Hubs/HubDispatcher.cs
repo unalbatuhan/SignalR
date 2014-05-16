@@ -249,7 +249,7 @@ namespace Microsoft.AspNet.SignalR.Hubs
             return progress;
         }
 
-        public override async Task ProcessRequest(HostContext context)
+        public override Task ProcessRequest(HostContext context)
         {
             if (context == null)
             {
@@ -276,13 +276,12 @@ namespace Microsoft.AspNet.SignalR.Hubs
 
                 // Generate the proxy
                 context.Response.ContentType = JsonUtility.JavaScriptMimeType;
-                await context.Response.End(_proxyGenerator.GenerateProxy(hubUrl));
-                return;
+                return context.Response.End(_proxyGenerator.GenerateProxy(hubUrl));
             }
 
             _isDebuggingEnabled = context.Environment.IsDebugEnabled();
 
-            await base.ProcessRequest(context);
+            return base.ProcessRequest(context);
         }
 
         internal static Task Connect(IHub hub)
