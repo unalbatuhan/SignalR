@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Infrastructure;
 using Microsoft.AspNet.SignalR.Hosting;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.AspNet.SignalR.Transports
 {
@@ -42,6 +43,7 @@ namespace Microsoft.AspNet.SignalR.Transports
         /// Get groupsToken in request over the transport.
         /// </summary>
         /// <returns>groupsToken in request</returns>
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This is for async.")]
         Task<string> GetGroupsToken();
 
         /// <summary>

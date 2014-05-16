@@ -100,7 +100,6 @@ namespace Microsoft.AspNet.SignalR.Transports
             }
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This is for async.")]
         protected virtual Task InitializeMessageId()
         {
             if (_lastMessageId == null)
@@ -111,6 +110,8 @@ namespace Microsoft.AspNet.SignalR.Transports
             return TaskAsyncHelper.Empty;
         }
 
+
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This is for async.")]
         public virtual Task<string> GetGroupsToken()
         {
             return TaskAsyncHelper.FromResult(Context.Request.QueryString["groupsToken"]);

@@ -9,6 +9,7 @@ using Microsoft.AspNet.SignalR.Infrastructure;
 using Microsoft.AspNet.SignalR.Json;
 using Microsoft.AspNet.SignalR.Tracing;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.AspNet.SignalR.Transports
 {
@@ -105,6 +106,7 @@ namespace Microsoft.AspNet.SignalR.Transports
             }
         }
 
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This is for async.")]
         public override async Task<string> GetGroupsToken()
         {
             var groupsToken = Context.Request.QueryString["groupsToken"];
