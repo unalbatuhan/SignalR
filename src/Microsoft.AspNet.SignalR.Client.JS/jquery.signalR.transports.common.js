@@ -212,10 +212,8 @@
                 url = baseUrl + connection.appRelativeUrl,
                 qs = "transport=" + transport;
 
-            if (!ajaxPost) {
-                if (connection.groupsToken) {
-                    qs += "&groupsToken=" + window.encodeURIComponent(connection.groupsToken);
-                }
+            if (!ajaxPost && connection.groupsToken) {
+                qs += "&groupsToken=" + window.encodeURIComponent(connection.groupsToken);
             }
 
             if (!reconnecting) {
@@ -228,10 +226,8 @@
                     url += "/reconnect";
                 }
 
-                if (!ajaxPost) {
-                    if (connection.messageId) {
-                        qs += "&messageId=" + window.encodeURIComponent(connection.messageId);
-                    }
+                if (!ajaxPost && connection.messageId) {
+                    qs += "&messageId=" + window.encodeURIComponent(connection.messageId);
                 }
             }
             url += "?" + qs;

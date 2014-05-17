@@ -214,8 +214,6 @@ namespace Microsoft.AspNet.SignalR
 
             string connectionToken = context.Request.QueryString["connectionToken"];
 
-            string groupsToken = await Transport.GetGroupsToken();
-
             // If there's no connection id then this is a bad request
             if (String.IsNullOrEmpty(connectionToken))
             {
@@ -240,7 +238,7 @@ namespace Microsoft.AspNet.SignalR
             string userId = UserIdProvider.GetUserId(context.Request);
 
             IList<string> signals = GetSignals(userId, connectionId);
-            IList<string> groups = AppendGroupPrefixes(context, connectionId, groupsToken);
+            IList<string> groups = AppendGroupPrefixes(context, connectionId, await Transport.GetGroupsToken());
 
             Connection connection = CreateConnection(connectionId, signals, groups);
 

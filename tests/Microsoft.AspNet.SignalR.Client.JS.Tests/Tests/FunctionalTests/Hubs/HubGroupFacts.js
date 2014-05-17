@@ -107,20 +107,14 @@ testUtilities.runWithAllTransports(function (transport) {
         };
     });
 
-    QUnit.asyncTimeoutTest(transport + ": group works after app domain restart when groupsToken just from client.", testUtilities.defaultTestTimeout * 4, function (end, assert, testName) {
+    QUnit.asyncTimeoutTest(transport + ": group works after app domain restart when groupsToken just from client.", testUtilities.defaultTestTimeout * 2, function (end, assert, testName) {
         var connection = testUtilities.createHubConnection(end, assert, testName),
             groupChat = connection.createHubProxies().groupChat,
-            readyToEnd = false,
             groupName = "group$&+,/:;=?@[]1";
 
         groupChat.client.send = function (value) {
-            if (readyToEnd) {
-                assert.ok(value === "hello", "Successful received message from group after reconnected");
-                end();
-            }
-            else if (value === groupName) {
-                groupChat.server.triggerReconnect()
-            }
+            assert.ok(value === "hello", "Successful received message from group after reconnected");
+            end();
         };
 
         connection.reconnecting(function () {
@@ -130,7 +124,6 @@ testUtilities.runWithAllTransports(function (transport) {
         connection.reconnected(function () {
             assert.ok(true, "Successfuly raised reconnected event ");
 
-            readyToEnd = true;
             groupChat.server.send(groupName, "hello").done(function () {
                 assert.ok(true, "Successful send to group");
             });
@@ -139,9 +132,8 @@ testUtilities.runWithAllTransports(function (transport) {
         connection.start({ transport: transport }).done(function () {
             assert.ok(true, "Connected");
 
-            groupChat.server.createGroupsToken(groupName).done(function (value) {
-                connection.groupsToken = value;
-                assert.ok(true, "Successful creat groupsToken");
+            groupChat.server.join(groupName).done(function () {
+                groupChat.server.triggerAppDomainRestart();
             });
         });
 

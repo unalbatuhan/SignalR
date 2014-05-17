@@ -102,11 +102,7 @@ namespace Microsoft.AspNet.SignalR.Transports
 
         protected virtual Task InitializeMessageId()
         {
-            if (_lastMessageId == null)
-            {
-                _lastMessageId = Context.Request.QueryString["messageId"];
-            }
-
+            _lastMessageId = Context.Request.QueryString["messageId"];
             return TaskAsyncHelper.Empty;
         }
 

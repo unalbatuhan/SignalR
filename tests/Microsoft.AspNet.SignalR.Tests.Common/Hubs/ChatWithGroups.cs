@@ -31,7 +31,7 @@ namespace Microsoft.AspNet.SignalR.Tests.Common.Hubs
             Groups.Remove(Context.ConnectionId, group);
         }
 
-        public void TriggerReconnect()
+        public void TriggerAppDomainRestart()
         {
             var config = WebConfigurationManager.OpenWebConfiguration("~");
             string path = config.FilePath.ToLower().Replace("web.config", "");
@@ -45,19 +45,6 @@ namespace Microsoft.AspNet.SignalR.Tests.Common.Hubs
             {
                 File.WriteAllText(file, "");
             }
-        }
-
-        public string CreateGroupsToken(string groupName)
-        {
-            IProtectedData protectedData = GlobalHost.DependencyResolver.Resolve<IProtectedData>();
-
-            string groupsString = Context.ConnectionId + ':' + "[\"groupChat." + groupName + "\"]";
-            
-            string groupsToken = protectedData.Protect(groupsString, Purposes.Groups);
-
-            Clients.All.send(groupName);
-
-            return groupsToken;
         }
     }
 }

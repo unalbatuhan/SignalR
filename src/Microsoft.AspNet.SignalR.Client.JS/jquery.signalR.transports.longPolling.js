@@ -90,32 +90,16 @@
                         connect = (messageId === null),
                         reconnecting = !connect,
                         polling = !raiseReconnect,
-                        url = transportLogic.getUrl(instance, that.name, reconnecting, polling, true),
-                        postData;
-                        
-                        if (instance.messageId) {
-                            if (instance.groupsToken) {
-                                postData = {
-                                    messageId: instance.messageId,
-                                    groupsToken: instance.groupsToken
-                                };
-                            }
-                            else {
-                                postData = {
-                                    messageId: instance.messageId
-                                };
-                            }
-                        }
-                        else {
-                            if (instance.groupsToken) {
-                                postData = {
-                                    groupsToken: instance.groupsToken
-                                };
-                            }
-                            else {
-                                postData = {};
-                            }
-                        }
+                        url = transportLogic.getUrl(instance, that.name, reconnecting, polling, true /* use Post for longPolling */),
+                        postData = {};
+
+                    if (instance.messageId) {
+                        postData.messageId = instance.messageId;
+                    }
+
+                    if (instance.groupsToken) {
+                        postData.groupsToken = instance.groupsToken;
+                    }
 
                     // If we've disconnected during the time we've tried to re-instantiate the poll then stop.
                     if (isDisconnecting(instance) === true) {

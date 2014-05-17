@@ -90,10 +90,7 @@ namespace Microsoft.AspNet.SignalR.Transports
 
         protected override async Task InitializeMessageId()
         {
-            if (_lastMessageId == null)
-            {
-                _lastMessageId = Context.Request.QueryString["messageId"];
-            }
+            _lastMessageId = Context.Request.QueryString["messageId"];
 
             if (_lastMessageId == null)
             {

@@ -18,14 +18,14 @@ namespace Microsoft.AspNet.SignalR.Tests
             public void NullContextThrows()
             {
                 var connection = new Mock<PersistentConnection>() { CallBase = true };
-                Assert.Throws<ArgumentNullException>(() => connection.Object.ProcessRequest((HostContext)null));
+                Assert.Throws<AggregateException>(() => connection.Object.ProcessRequest((HostContext)null).Wait());
             }
 
             [Fact]
             public void UninitializedThrows()
             {
                 var connection = new Mock<PersistentConnection>() { CallBase = true };
-                Assert.Throws<InvalidOperationException>(() => connection.Object.ProcessRequest(new HostContext(null, null)));
+                Assert.Throws<AggregateException>(() => connection.Object.ProcessRequest(new HostContext(null, null)).Wait());
             }
 
             [Fact]
