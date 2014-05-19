@@ -17,7 +17,6 @@ namespace Microsoft.AspNet.SignalR.Transports
     {
         private readonly IConfigurationManager _configurationManager;
         private bool _responseSent;
-        private INameValueCollection _form;
 
         public LongPollingTransport(HostContext context, IDependencyResolver resolver)
             : this(context,
@@ -90,35 +89,13 @@ namespace Microsoft.AspNet.SignalR.Transports
 
         protected override async Task InitializeMessageId()
         {
-            _lastMessageId = Context.Request.QueryString["messageId"];
-
-            if (_lastMessageId == null)
-            {
-                if (_form == null)
-                {
-                    _form = await Context.Request.ReadForm();
-                }
-
-                _lastMessageId = _form["messageId"];
-            }
+            _lastMessageId = Context.Request.QueryString["messageId"] ?? (await Context.Request.ReadForm())["messageId"];
         }
 
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This is for async.")]
         public override async Task<string> GetGroupsToken()
         {
-            var groupsToken = Context.Request.QueryString["groupsToken"];
-
-            if (groupsToken == null)
-            {
-                if (_form == null)
-                {
-                    _form = await Context.Request.ReadForm();
-                }
-
-                groupsToken = _form["groupsToken"];
-            }
-
-            return groupsToken;
+            return Context.Request.QueryString["groupsToken"] ?? (await Context.Request.ReadForm())["groupsToken"];
         }
 
         protected override bool IsPollRequest
