@@ -107,7 +107,7 @@ testUtilities.runWithAllTransports(function (transport) {
         };
     });
 
-    QUnit.asyncTimeoutTest(transport + ": group works after app domain restart when groupsToken just from client.", testUtilities.defaultTestTimeout * 2, function (end, assert, testName) {
+    QUnit.asyncTimeoutTest(transport + ": group works after app domain restart when groupsToken just from client.", testUtilities.defaultTestTimeout * 3, function (end, assert, testName) {
         var connection = testUtilities.createHubConnection(end, assert, testName),
             groupChat = connection.createHubProxies().groupChat,
             groupName = "group$&+,/:;=?@[]1";
