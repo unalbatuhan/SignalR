@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNet.SignalR.Hubs;
-using Microsoft.AspNet.SignalR.Infrastructure;
-using Newtonsoft.Json;
-using System.Web.Configuration;
-using System.Configuration;
 using System.IO;
-using System.Reflection;
+using System.Web.Configuration;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace Microsoft.AspNet.SignalR.Tests.Common.Hubs
 {
