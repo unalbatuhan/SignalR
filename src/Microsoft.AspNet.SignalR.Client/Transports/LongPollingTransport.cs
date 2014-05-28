@@ -134,7 +134,7 @@ namespace Microsoft.AspNet.SignalR.Client.Transports
 
                 connection.Trace(TraceLevels.Messages, "LP: OnMessage({0})", message);
 
-                TransportHelper.ProcessResponse(connection,
+                _transportHelper.ProcessResponse(connection,
                                                 message,
                                                 out shouldReconnect,
                                                 out disconnectedReceived,
