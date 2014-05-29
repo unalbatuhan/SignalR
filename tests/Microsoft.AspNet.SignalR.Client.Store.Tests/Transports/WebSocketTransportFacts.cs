@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.AspNet.SignalR.Client.Transports
 {
-    public class WebSocketTransportTests
+    public class WebSocketTransportFacts
     {
         [Fact]
         public void CannotCreateWebSocketTransportWithNullHttpClient()
