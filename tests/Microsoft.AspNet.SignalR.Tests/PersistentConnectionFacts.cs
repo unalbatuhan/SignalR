@@ -18,14 +18,30 @@ namespace Microsoft.AspNet.SignalR.Tests
             public void NullContextThrows()
             {
                 var connection = new Mock<PersistentConnection>() { CallBase = true };
-                Assert.Throws<ArgumentNullException>(() => connection.Object.ProcessRequest((HostContext)null));
+                try
+                {
+                    connection.Object.ProcessRequest((HostContext)null).Wait();
+                    Assert.False(true, "Exception is expected");
+                }
+                catch (AggregateException ex)
+                {
+                    Assert.IsType<ArgumentNullException>(ex.Unwrap());
+                }
             }
 
             [Fact]
             public void UninitializedThrows()
             {
                 var connection = new Mock<PersistentConnection>() { CallBase = true };
-                Assert.Throws<InvalidOperationException>(() => connection.Object.ProcessRequest(new HostContext(null, null)));
+                try
+                {
+                    connection.Object.ProcessRequest(new HostContext(null, null)).Wait();
+                    Assert.False(true, "Exception is expected");
+                }
+                catch (AggregateException ex)
+                {
+                    Assert.IsType<InvalidOperationException>(ex.Unwrap());
+                }
             }
 
             [Fact]
@@ -137,7 +153,7 @@ namespace Microsoft.AspNet.SignalR.Tests
                 var context = new HostContext(req.Object, null);
                 connection.Object.Initialize(dr);
 
-                return connection.Object.VerifyGroups(context, connectionId);
+                return connection.Object.VerifyGroups(connectionId, groupsToken);
             }
         }
 
